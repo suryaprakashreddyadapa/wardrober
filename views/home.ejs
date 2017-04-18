@@ -1,0 +1,226 @@
+<html>
+<head>
+    <title>Homepage</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+</head>
+<script>
+    var app = angular.module('wardroberapp', []);
+    app.controller('homectrl', function($scope, $http) {
+
+        app.filter("trustUrl", ['$sce', function($sce) {
+            return function(recordingUrl) {
+                return $sce.trustAsResourceUrl(recordingUrl);
+            };
+        }]);
+
+        var getImages = $http.get('/images');
+        var imageUrls = [];
+        getImages.success(function(data) {
+            $scope.images = data.images;
+            data.images.forEach(function(imageId) {
+                imageUrls.push('http://localhost:3000/images/' + imageId);
+            });
+            console.log(imageUrls);
+        });
+
+        var filesInfo;
+        var videoFile;
+
+        $scope.uploadFile = function(files) {
+            console.log(files);
+            filesInfo = files;
+        };
+
+        $scope.uploadFile2 = function(files) {
+            console.log(files);
+            videoFile = files;
+        };
+
+        $scope.upload_image = function() {
+            var reqData = new FormData();
+            reqData.append("image", filesInfo[0]);
+            $http({
+                method: 'POST',
+                url: '/api/images/',
+                data: reqData,
+                headers: {
+                    'Content-Type': undefined
+                }
+            }).success(
+                function (data) {
+                    $("#myModal").modal();
+                });
+        };
+    });
+
+</script>
+<body ng-app="wardroberapp" ng-controller="homectrl">
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <form class="navbar-form navbar-left">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#">Home</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="#">Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="col-md-2 col-md-offset-1">
+    <div class="row">
+
+        <!-- SIDEBAR USERPIC -->
+        <div class="profile-userpic">
+            <img src="http://localhost:3000/propic.png" class="img-responsive" alt="">
+        </div>
+        <!-- END SIDEBAR USERPIC -->
+        <!-- SIDEBAR USER TITLE -->
+
+        <div class="profile-usertitle-name">
+            Vaishnavi Reddy
+        </div>
+        <!-- END SIDEBAR USER TITLE -->
+        <!-- SIDEBAR MENU -->
+        <div class="profile-usermenu">
+            <ul class="nav">
+                <li class="active">
+                    <a href="#">
+                        <i class="glyphicon glyphicon-home"></i>
+                        Overview </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="glyphicon glyphicon-user"></i>
+                        Account Settings </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="glyphicon glyphicon-flag"></i>
+                        Help </a>
+                </li>
+            </ul>
+        </div>
+        <!-- END MENU -->
+
+    </div>
+</div>
+<div class="row"></div>
+<div class="row">
+    <div class="col-sm-3"><p>&nbsp</p></div>
+    <div class="col-sm-6">
+        <div class="row">
+            <div class = "col-sm-12">
+
+                <div class="row">
+
+         				<span class="">
+				           <div class="imageupload panel panel-default">
+					<div class="panel-heading clearfix">
+						<h3 class="panel-title pull-left">Upload Image</h3>
+							<div class="btn-group pull-right">
+								<button type="button" class="btn btn-default active">File</button>
+								<button type="button" class="btn btn-default">URL</button>
+							</div>
+						</div>
+						<div class="file-tab panel-body">
+							<label class="btn btn-default btn-file">
+
+								<!-- The file is stored here. -->
+								 <input type="file" name="file1" onchange="angular.element(this).scope().uploadFile(this.files)">
+							</label>
+							<button type="button" class="btn btn-default">Remove</button>
+						</div>
+					<div class="url-tab panel-body">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Image URL">
+						<div class="input-group-btn">
+								<button type="button" class="btn btn-default">Submit</button>
+					</div>
+						</div>
+					<button type="button" class="btn btn-default">Remove</button>
+
+				            <br>
+		            	</span>
+                </div>
+                <div class="col-sm-2"><p></p></div>
+            </div>
+            <div class="row">
+                <button type="button" class="btn btn-primary form-control" ng-click="upload_image();">Upload Pictures</button>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Image Upload</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Image Uploaded Successfully!</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="redirectMyPage();">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <br><br><br>
+
+        </div>
+
+    </div>
+    <div class="col-sm-3"><p></p></div>
+</div>
+<div class="row">
+    <h4><mark>Recent Searches</mark></h4>
+    <div class="row" ng-repeat="image in images">
+        {{imageUrl}}
+        <img ng-src="http://localhost:3000/images/{{image}}" alt="Description" height="{Ctrl+Space}" width="{Ctrl+Space}" alt="image"/><br>
+    </div>
+</div>
+<div class="row"> </div>
+<footer class="page-footer black">
+
+    <div class="footer-copyright">
+        <div class="container">
+            <sup>©</sup> 2017 Copyright @Wardrober
+            <a class="grey-text text-lighten-4 right" href="#!">More Info about the author</a>
+        </div>
+    </div>
+</body>
+</html>
